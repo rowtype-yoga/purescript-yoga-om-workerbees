@@ -2,17 +2,15 @@ module Examples.FibonacciDemo where
 
 import Prelude
 
-import Prelude
-
-import Control.Parallel (parTraverse)
+import Control.Monad.Error.Class (throwError)
 import Data.Array as Array
 import Data.Traversable (for_)
 import Data.Tuple (Tuple(..))
 import Effect (Effect)
-import Effect.Aff (Aff, launchAff_)
+import Effect.Aff (launchAff_)
 import Effect.Class.Console (log)
-import Node.WorkerBees.Aff.Pool as Pool
-import Node.WorkerBees as WB
+import Yoga.Om as Om
+import Yoga.Om.WorkerBees (WorkerPool, makePool, distributeWork, terminatePool)
 
 -- | Simple console demo of Fibonacci calculation using worker pool
 -- |
@@ -24,35 +22,37 @@ import Node.WorkerBees as WB
 type FibInput = { n :: Int }
 type FibOutput = { result :: Int, thread :: Int }
 
-fibDemo :: Aff Unit
+fibDemo :: forall ctx. Om.Om ctx () Unit
 fibDemo = do
-  log "=== Fibonacci Worker Demo ==="
-  log ""
+  Om.fromAff $ log "=== Fibonacci Worker Demo ==="
+  Om.fromAff $ log ""
 
-  -- Create worker pool with 4 workers
-  log "Creating worker pool..."
-  let worker = (WB.unsafeWorkerFromPath "./dist/workers/FibonacciWorker.js" :: WB.Worker Unit FibInput FibOutput)
-  pool <- Pool.make worker unit 4
+  -- Create worker pool with 4 workers (Om API)
+  Om.fromAff $ log "Creating worker pool..."
+  (pool :: WorkerPool FibInput FibOutput) <- makePool
+    { workerPath: "./dist/workers/FibonacciWorker.js"
+    , numWorkers: 4
+    }
 
   -- Test inputs: Calculate Fibonacci for these numbers
   let inputs = [35, 36, 37, 38, 39, 40]
   let fibInputs = map (\n -> { n }) inputs
 
-  log $ "Calculating Fibonacci for: " <> show inputs
-  log ""
+  Om.fromAff $ log $ "Calculating Fibonacci for: " <> show inputs
+  Om.fromAff $ log ""
 
-  -- Distribute work and collect results
-  results <- parTraverse (Pool.invoke pool) fibInputs
+  -- Distribute work using Om API
+  results <- distributeWork pool fibInputs
 
   -- Print results
-  for_ (Array.zip inputs results) \(Tuple input result) -> do
+  Om.fromAff $ for_ (Array.zip inputs results) \(Tuple input result) -> do
     log $ "fib(" <> show input <> ") = " <> show result.result
 
-  log ""
-  log "Cleaning up..."
-  Pool.terminate pool
+  Om.fromAff $ log ""
+  Om.fromAff $ log "Cleaning up..."
+  terminatePool pool
 
-  log "Done!"
+  Om.fromAff $ log "Done!"
 
 main :: Effect Unit
-main = launchAff_ fibDemo
+main = launchAff_ $ Om.runOm unit { exception: throwError } fibDemo

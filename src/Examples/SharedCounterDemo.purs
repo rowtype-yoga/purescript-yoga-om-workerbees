@@ -2,17 +2,15 @@ module Examples.SharedCounterDemo where
 
 import Prelude
 
-import Prelude
-
-import Control.Parallel (parTraverse)
+import Control.Monad.Error.Class (throwError)
 import Data.Array as Array
 import Data.Traversable (for_)
 import Effect (Effect)
-import Effect.Aff (Aff, launchAff_)
+import Effect.Aff (launchAff_)
 import Effect.Class (liftEffect)
 import Effect.Class.Console (log)
-import Node.WorkerBees.Aff.Pool as Pool
-import Node.WorkerBees as WB
+import Yoga.Om as Om
+import Yoga.Om.WorkerBees (WorkerPool, makePoolWithData, distributeWork, terminatePool)
 import Yoga.Om.WorkerBees.SharedInt as SharedInt
 
 -- | Console demo of SharedInt (atomic counter) across worker threads
@@ -25,47 +23,49 @@ import Yoga.Om.WorkerBees.SharedInt as SharedInt
 type CounterInput = { n :: Int }
 type CounterOutput = { result :: Int, count :: Int }
 
-counterDemo :: Aff Unit
+counterDemo :: forall ctx. Om.Om ctx () Unit
 counterDemo = do
-  log "=== Shared Counter Demo ==="
-  log ""
+  Om.fromAff $ log "=== Shared Counter Demo ==="
+  Om.fromAff $ log ""
 
   -- Create shared counter starting at 0
-  log "Creating shared counter..."
-  counter <- liftEffect $ SharedInt.new 0
+  Om.fromAff $ log "Creating shared counter..."
+  counter <- Om.fromAff $ liftEffect $ SharedInt.new 0
 
-  -- Create worker pool with shared counter as workerData
-  log "Creating worker pool with shared counter..."
-  let counterSendable = SharedInt.toSendable counter
-  let worker = (WB.unsafeWorkerFromPath "./dist/workers/CounterWorker.js" :: WB.Worker (WB.SendWrapper SharedInt.SharedInt) CounterInput CounterOutput)
-  pool <- Pool.make worker counterSendable 4
+  -- Create worker pool with shared counter as workerData (Om API)
+  Om.fromAff $ log "Creating worker pool with shared counter..."
+  pool <- (makePoolWithData
+    { workerPath: "./dist/workers/CounterWorker.js"
+    , numWorkers: 4
+    }
+    (SharedInt.toSendable counter) :: Om.Om ctx () (WorkerPool CounterInput CounterOutput))
 
   -- Send 100 increment tasks (each worker will increment the shared counter)
   let tasks = Array.range 1 100
   let counterInputs = map (\n -> { n }) tasks
 
-  log "Distributing 100 increment tasks across workers..."
-  log ""
+  Om.fromAff $ log "Distributing 100 increment tasks across workers..."
+  Om.fromAff $ log ""
 
-  results <- parTraverse (Pool.invoke pool) counterInputs
+  results <- distributeWork pool counterInputs
 
   -- Print some sample results (showing concurrent increments)
-  log "Sample results from workers:"
-  for_ (Array.take 10 results) \result -> do
+  Om.fromAff $ log "Sample results from workers:"
+  Om.fromAff $ for_ (Array.take 10 results) \result -> do
     log $ "  Result: " <> show result.result <> ", Counter: " <> show result.count
 
-  log "..."
-  log ""
+  Om.fromAff $ log "..."
+  Om.fromAff $ log ""
 
   -- Read final counter value
-  finalValue <- liftEffect $ SharedInt.read counter
-  log $ "Final counter value: " <> show finalValue
+  finalValue <- Om.fromAff $ liftEffect $ SharedInt.read counter
+  Om.fromAff $ log $ "Final counter value: " <> show finalValue
 
-  log ""
-  log "Cleaning up..."
-  Pool.terminate pool
+  Om.fromAff $ log ""
+  Om.fromAff $ log "Cleaning up..."
+  terminatePool pool
 
-  log "Done!"
+  Om.fromAff $ log "Done!"
 
 main :: Effect Unit
-main = launchAff_ counterDemo
+main = launchAff_ $ Om.runOm unit { exception: throwError } counterDemo
