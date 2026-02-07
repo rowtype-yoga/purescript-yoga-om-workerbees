@@ -182,8 +182,6 @@ writeSegment (SharedMap { sab, maxBytesPerSegment }) { lenSlot, dataOffset } obj
   _ <- runEffectFn3 writeSegmentDataImpl sab dataOffset json
   void $ Atomics.store lenSlot 0 len
 
--- FFI
-
 foreign import hashKeyImpl :: Fn2 String Int Int
 foreign import writeSegmentDataImpl :: EffectFn3 SharedArrayBuffer Int String Int
 foreign import readSegmentDataImpl :: EffectFn3 SharedArrayBuffer Int Int String

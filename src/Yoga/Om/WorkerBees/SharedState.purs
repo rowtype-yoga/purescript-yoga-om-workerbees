@@ -118,7 +118,5 @@ readData (SharedState { sab, lenSlot }) = do
     Just val -> pure val
     Nothing -> throw "SharedState: failed to deserialize"
 
--- FFI
-
 foreign import writeDataImpl :: EffectFn2 SharedArrayBuffer String Int
 foreign import readDataImpl :: EffectFn2 SharedArrayBuffer Int String
