@@ -1,0 +1,49 @@
+workspace:
+  packageSet:
+    registry: 51.1.0
+  extraPackages:
+    node-workerbees:
+      git: https://github.com/natefaubion/purescript-node-workerbees.git
+      ref: v0.3.1
+      dependencies:
+        - aff
+        - argonaut-core
+        - effect
+        - either
+        - exceptions
+        - maybe
+        - newtype
+        - parallel
+        - prelude
+        - transformers
+        - unsafe-coerce
+    yoga-om:
+      path: ../purescript-yoga-om
+    yoga-json:
+      path: ../purescript-yoga-json
+
+package:
+  name: yoga-om-workerbees
+  publish:
+    version: 0.1.0
+    license: MIT
+  dependencies:
+    - aff: ">=7.0.0 <8.0.0"
+    - arraybuffer-types: ">=3.0.0 <4.0.0"
+    - console: ">=6.0.0 <7.0.0"
+    - effect: ">=4.0.0 <5.0.0"
+    - either: ">=6.0.0 <7.0.0"
+    - foldable-traversable: ">=6.0.0 <7.0.0"
+    - maybe: ">=6.0.0 <7.0.0"
+    - newtype: ">=5.0.0 <6.0.0"
+    - node-buffer: ">=9.0.0 <10.0.0"
+    - node-workerbees
+    - parallel: ">=7.0.0 <8.0.0"
+    - prelude: ">=6.0.0 <7.0.0"
+    - transformers: ">=6.0.0 <7.0.0"
+    - unsafe-coerce: ">=6.0.0 <7.0.0"
+    - yoga-json: ">=5.0.0 <6.0.0"
+    - yoga-om
+  test:
+    main: Test.Main
+    dependencies: []

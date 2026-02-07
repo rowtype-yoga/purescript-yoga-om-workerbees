@@ -1,0 +1,28 @@
+{
+  "name": "purescript-yoga-om-workerbees",
+  "version": "0.1.0",
+  "description": "Multi-threaded computation for the Om effect monad using Node.js worker threads",
+  "type": "module",
+  "scripts": {
+    "build": "spago build",
+    "build:workers": "bash examples/build-workers.sh",
+    "example:fibonacci": "bun run build:workers && spago run --main Examples.FibonacciDemo",
+    "example:counter": "bun run build:workers && spago run --main Examples.SharedCounterDemo",
+    "example:state": "bun run build:workers && spago run --main Examples.SharedStateDemo",
+    "example:map": "bun run build:workers && spago run --main Examples.SharedMapDemo"
+  },
+  "keywords": [
+    "purescript",
+    "om",
+    "worker-threads",
+    "multithreading",
+    "shared-memory",
+    "atomics"
+  ],
+  "license": "MIT",
+  "devDependencies": {
+    "purescript": "^0.15.15",
+    "purs-tidy": "^0.10.0",
+    "spago": "next"
+  }
+}

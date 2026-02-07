@@ -1,0 +1,6 @@
+node_modules/
+.spago/
+output*/
+dist/
+.purs-repl
+.psc-ide-port
