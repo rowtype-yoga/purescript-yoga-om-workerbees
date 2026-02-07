@@ -5,7 +5,7 @@ import Prelude
 import Control.Monad.Error.Class (throwError)
 import Data.Array as Array
 import Data.Traversable (for_)
-import Data.Tuple (Tuple(..))
+import Data.Tuple.Nested ((/\))
 import Effect (Effect)
 import Effect.Aff (launchAff_)
 import Effect.Class.Console (log)
@@ -45,7 +45,7 @@ fibDemo = do
   results <- distributeWork pool fibInputs
 
   -- Print results
-  Om.fromAff $ for_ (Array.zip inputs results) \(Tuple input result) -> do
+  Om.fromAff $ for_ (Array.zip inputs results) \(input /\ result) -> do
     log $ "fib(" <> show input <> ") = " <> show result.result
 
   Om.fromAff $ log ""
