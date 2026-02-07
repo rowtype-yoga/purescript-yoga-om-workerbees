@@ -22,12 +22,12 @@ import Yoga.Om.WorkerBees (WorkerPool, makePool, distributeWork, terminatePool)
 type FibInput = { n :: Int }
 type FibOutput = { result :: Int, thread :: Int }
 
-fibDemo :: forall ctx. Om.Om ctx () Unit
+fibDemo :: Om.Om Unit () Unit
 fibDemo = do
   Om.fromAff $ log "=== Fibonacci Worker Demo ==="
   Om.fromAff $ log ""
 
-  -- Create worker pool with 4 workers (Om API)
+  -- Create worker pool with 4 workers (Om API, no shared context needed)
   Om.fromAff $ log "Creating worker pool..."
   (pool :: WorkerPool FibInput FibOutput) <- makePool
     { workerPath: "./dist/workers/FibonacciWorker.js"

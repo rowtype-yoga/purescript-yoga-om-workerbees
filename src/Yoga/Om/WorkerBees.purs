@@ -3,7 +3,6 @@ module Yoga.Om.WorkerBees
   , PoolConfig
   , defaultPoolConfig
   , makePool
-  , makePoolWithData
   , terminatePool
   , distributeWork
   , module Exports
@@ -42,28 +41,20 @@ defaultPoolConfig workerPath =
 type WorkerPool input output = Pool.WorkerPool input output
 
 -- | Create a worker pool. Must be paired with `terminatePool`.
+-- | Workers receive the current Om context via `ctx.workerData`.
+-- | If you don't need shared data, use `Unit` as the context type.
 makePool
   :: forall ctx errs input output
    . WB.Sendable input
   => WB.Sendable output
+  => WB.Sendable ctx
   => PoolConfig
   -> Om ctx errs (WorkerPool input output)
-makePool config = Om.fromAff do
-  let worker = WB.unsafeWorkerFromPath config.workerPath
-  Pool.make worker unit config.numWorkers
-
--- | Create a worker pool with shared data accessible to all workers via `workerData`.
-makePoolWithData
-  :: forall ctx errs input output a
-   . WB.Sendable input
-  => WB.Sendable output
-  => WB.Sendable a
-  => PoolConfig
-  -> a
-  -> Om ctx errs (WorkerPool input output)
-makePoolWithData config workerData = Om.fromAff do
-  let worker = WB.unsafeWorkerFromPath config.workerPath
-  Pool.make worker workerData config.numWorkers
+makePool config = do
+  ctx <- Om.ask
+  Om.fromAff do
+    let worker = WB.unsafeWorkerFromPath config.workerPath
+    Pool.make worker ctx config.numWorkers
 
 -- | Terminate a worker pool and all its threads.
 terminatePool

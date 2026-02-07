@@ -9,8 +9,9 @@ import Effect (Effect)
 import Effect.Aff (launchAff_)
 import Effect.Class (liftEffect)
 import Effect.Class.Console (log)
+import Node.WorkerBees as WB
 import Yoga.Om as Om
-import Yoga.Om.WorkerBees (WorkerPool, makePoolWithData, distributeWork, terminatePool)
+import Yoga.Om.WorkerBees (WorkerPool, makePool, distributeWork, terminatePool)
 import Yoga.Om.WorkerBees.SharedInt as SharedInt
 
 -- | Console demo of SharedInt (atomic counter) across worker threads
@@ -23,22 +24,24 @@ import Yoga.Om.WorkerBees.SharedInt as SharedInt
 type CounterInput = { n :: Int }
 type CounterOutput = { result :: Int, count :: Int }
 
-counterDemo :: forall ctx. Om.Om ctx () Unit
+-- Context is the SendWrapper for SharedInt - workers receive this
+type CounterContext = WB.SendWrapper SharedInt.SharedInt
+
+counterDemo :: Om.Om CounterContext () Unit
 counterDemo = do
   Om.fromAff $ log "=== Shared Counter Demo ==="
   Om.fromAff $ log ""
 
-  -- Create shared counter starting at 0
-  Om.fromAff $ log "Creating shared counter..."
-  counter <- Om.fromAff $ liftEffect $ SharedInt.new 0
+  -- Get shared counter from context
+  Om.fromAff $ log "Creating worker pool (shared counter passed via context)..."
+  counterWrapper <- Om.ask
+  let counter = SharedInt.fromSendable counterWrapper
 
-  -- Create worker pool with shared counter as workerData (Om API)
-  Om.fromAff $ log "Creating worker pool with shared counter..."
-  pool <- (makePoolWithData
+  -- Create worker pool - workers automatically get the context
+  (pool :: WorkerPool CounterInput CounterOutput) <- makePool
     { workerPath: "./dist/workers/CounterWorker.js"
     , numWorkers: 4
     }
-    (SharedInt.toSendable counter) :: Om.Om ctx () (WorkerPool CounterInput CounterOutput))
 
   -- Send 100 increment tasks (each worker will increment the shared counter)
   let tasks = Array.range 1 100
@@ -68,4 +71,10 @@ counterDemo = do
   Om.fromAff $ log "Done!"
 
 main :: Effect Unit
-main = launchAff_ $ Om.runOm unit { exception: throwError } counterDemo
+main = launchAff_ do
+  -- Create shared counter and wrap for sending to workers
+  counter <- liftEffect $ SharedInt.new 0
+  let counterContext = SharedInt.toSendable counter
+
+  -- Run Om with counter as context
+  Om.runOm counterContext { exception: throwError } counterDemo
