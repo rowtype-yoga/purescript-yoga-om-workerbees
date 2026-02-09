@@ -11,6 +11,7 @@
             {
               "arraybuffer-types": ">=3.0.0 <4.0.0"
             },
+            "arrays",
             {
               "console": ">=6.0.0 <7.0.0"
             },
@@ -20,9 +21,12 @@
             {
               "either": ">=6.0.0 <7.0.0"
             },
+            "exceptions",
             {
               "foldable-traversable": ">=6.0.0 <7.0.0"
             },
+            "foreign-object",
+            "functions",
             {
               "maybe": ">=6.0.0 <7.0.0"
             },
@@ -36,12 +40,15 @@
             {
               "parallel": ">=7.0.0 <8.0.0"
             },
+            "partial",
             {
               "prelude": ">=6.0.0 <7.0.0"
             },
+            "strings",
             {
               "transformers": ">=6.0.0 <7.0.0"
             },
+            "tuples",
             {
               "unsafe-coerce": ">=6.0.0 <7.0.0"
             },
