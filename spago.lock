@@ -39,6 +39,12 @@
               "maybe": ">=6.0.0 <7.0.0"
             },
             {
+              "newtype": ">=5.0.0 <6.0.0"
+            },
+            {
+              "node-buffer": ">=9.0.0 <10.0.0"
+            },
+            {
               "node-workerbees": ">=0.3.1 <0.4.0"
             },
             {
@@ -58,6 +64,9 @@
             },
             {
               "tuples": ">=7.0.0 <8.0.0"
+            },
+            {
+              "unsafe-coerce": ">=6.0.0 <7.0.0"
             },
             {
               "yoga-json": ">=5.1.0 <6.0.0"
@@ -1139,6 +1148,22 @@
       "dependencies": [
         "prelude",
         "safe-coerce"
+      ]
+    },
+    "node-buffer": {
+      "type": "registry",
+      "version": "9.0.0",
+      "integrity": "sha256-RdQjilmEHqsT4fwpCr8Mavw8KTafYrS3ZM6zeAAVAl8=",
+      "dependencies": [
+        "arraybuffer-types",
+        "effect",
+        "functions",
+        "maybe",
+        "nullable",
+        "partial",
+        "prelude",
+        "st",
+        "unsafe-coerce"
       ]
     },
     "node-workerbees": {

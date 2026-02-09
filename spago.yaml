@@ -22,8 +22,6 @@ package:
     - foreign-object: ">=4.1.0 <5.0.0"
     - functions: ">=6.0.0 <7.0.0"
     - maybe: ">=6.0.0 <7.0.0"
-    - newtype: ">=5.0.0 <6.0.0"
-    - node-buffer: ">=9.0.0 <10.0.0"
     - node-workerbees: ">=0.3.1 <0.4.0"
     - parallel: ">=7.0.0 <8.0.0"
     - partial: ">=4.0.0 <5.0.0"
@@ -31,7 +29,6 @@ package:
     - strings: ">=6.0.1 <7.0.0"
     - transformers: ">=6.1.0 <7.0.0"
     - tuples: ">=7.0.0 <8.0.0"
-    - unsafe-coerce: ">=6.0.0 <7.0.0"
     - yoga-json: ">=5.1.0 <6.0.0"
     - yoga-om: ">=0.1.0 <0.2.0"
   test:
