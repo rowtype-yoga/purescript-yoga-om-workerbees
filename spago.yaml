@@ -1,11 +1,8 @@
-workspace:
-  packageSet:
-    registry: 73.0.0
-
+workspace: {}
 package:
   name: yoga-om-workerbees
   publish:
-    version: 0.1.1
+    version: 0.1.2
     license: MIT
     location:
       githubOwner: rowtype-yoga
